@@ -10,10 +10,13 @@ class Graph_Node:
   graph = None
   degree = 0
 
-  def __init__(self, label, neighbors=[]):
+  def __init__(self, label, neighbors=None):
     self.label = label
-    self.neighbors = neighbors
-    self.degree = len(neighbors)
+    if neighbors is None:
+      self.neighbors = []
+    else:
+      self.neighbors = neighbors
+    self.degree = len(self.neighbors)
 
     global uniquifier
     self.unique = uniquifier
@@ -27,13 +30,13 @@ class Graph_Node:
   def remove_from_graph (self, g):
     self.graph = None
 
-  def add_edge (neighbor):
+  def add_edge (self, neighbor):
     self.neighbors.append(neighbor)
-    ++ self.degree
+    self.degree += 1
 
-  def remove_edge (neighbor):
-    self.neighbors.filter((lambda x : x is not neighbor), self.neighbors)
-    -- self.degree
+  def remove_edge (self, neighbor):
+    filter((lambda x : x is not neighbor), self.neighbors)
+    self.degree += 1
 
   def set_neighbors(self, neighbors):
     self.neighbors = neighbors

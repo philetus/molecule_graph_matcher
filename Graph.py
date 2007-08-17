@@ -6,12 +6,14 @@ from Numeric import *
 
 class Graph:
   adj_matrix = None
-  index_dict = None
+  index_dict = None  # nodeid |-> ix
+  node_dict = None   # nodeid |-> node
 
   def __init__ (self, nodelist=[]):
     dim = len(nodelist)
     self.adj_matrix = zeros((dim,dim), Int8)
     self.index_dict = {}
+    self.node_dict = {}
     i = 0
     for eli in nodelist:
       self.index_dict[eli.unique] = i
@@ -34,6 +36,7 @@ class Graph:
     #assumes square matrix; should always be true
     index = oldrows
     self.index_dict[node.unique] = index
+    self.node_dict[node.unique] = node
 
     for el in node.neighbors:
       self.adj_matrix[index, self.index_dict[el.unique]] = 1
@@ -60,6 +63,7 @@ class Graph:
     node.remove_from_graph(self)
 
     del self.index_dict[node.unique]
+    del self.node_dict[node.unique]
 
     for node,ix in self.index_dict.iteritems():
       if ix > index:
@@ -106,3 +110,6 @@ class Graph:
     node.set_neighbors(neighbors)
     for el in neighbors:
       el.add_edge(node)
+
+  def has_edge (self, node1, node2):
+    return self.adj_matrix[self.index_dict[node1],self.index_dict[node2]]

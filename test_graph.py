@@ -5,7 +5,6 @@ a = GN.Graph_Node ("a")
 b = GN.Graph_Node ("b")
 c = GN.Graph_Node ("c")
 d = GN.Graph_Node ("d")
-e = GN.Graph_Node ("e")
 
 g = G.Graph()
 print "Empty graph"
@@ -43,6 +42,7 @@ g.add_edge(a,c)
 print "a,c edge added"
 print g.adj_matrix
 
+e = GN.Graph_Node ("e")
 g.add_node(e)
 print "added e node"
 print g.adj_matrix
