@@ -43,23 +43,26 @@ class Graph_Matcher:
     B = self.large.adj_matrix
     M0 = zeros((A.shape[0],B.shape[0]))
     i = 0
-    for (uniquei,indexi) in self.small.index_dict.iteritems():
+    keyf = lambda x : x[1]
+    for (uniquei,ixi) in sorted([x for x in self.small.index_dict.iteritems()], key = keyf):
       j = 0
-      for (uniquej,indexj) in self.large.index_dict.iteritems():
+      for (uniquej,ixj) in sorted([x for x in self.large.index_dict.iteritems()], key = keyf):
         nodei = self.small.node_dict[uniquei]
         nodej = self.large.node_dict[uniquej]
+        print ((nodei.unique,nodei.degree), (nodej.unique, nodej.degree))
         if nodei.label == nodej.label and nodei.degree <= nodej.degree:
           M0[i,j] = 1
         j += 1
       i += 1
+    print "++++"
     print M0
     perm = self.first_permutation(M0)
     while self.next_permutation(M0, perm, 0, A.shape[0]):
       print "found perm: %s" % perm
       M = self.mat_from_perm (M0,perm)
       if self.is_isomorphism(A,B,M):
-        #return 1
-        pass
+        print "found iso"
+        return 1
     return 0
 
 
@@ -72,6 +75,7 @@ class Graph_Matcher:
 
   def first_permutation(self, M0):
     p = zeros((M0.shape[0]))
+    p -= 1
     return p
 
 

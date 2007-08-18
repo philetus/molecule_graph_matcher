@@ -4,9 +4,9 @@ import Graph_Matcher as GM
 import Graph_Node as GN
 import Graph as G
 
-big_lo = 2
-big_hi = 5
-small_lo = 1
+big_lo = 5
+big_hi = 25
+small_lo = 2
 
 def gen_iso ():
   big = R.randint(big_lo,big_hi)
@@ -30,8 +30,10 @@ def gen_iso ():
     B.add_node(gn)
   for i in range(0,big):
     for j in range(0,big):
-      if R.randint(0,7) == 0:
+      if i != j and R.randint(0,7) == 0:
         B.add_edge(bdict[i],bdict[j])
+
+  print ("-")
 
   for i in range(0,small):
     gn = GN.Graph_Node("a")
@@ -39,12 +41,22 @@ def gen_iso ():
     S.add_node(gn)
   for i in range(0,small):
     for j in range(0,small):
-      if B.has_edge(bdict[nodes[i]].unique,bdict[nodes[j]].unique):
+      if B.has_edge(bdict[nodes[i]],bdict[nodes[j]]):
         if R.randint(0,1):
           S.add_edge(sdict[i],sdict[j])
 
-  return (B,S,nodes)
+  goodM = zeros((small,big))
+  for i in range(0,small):
+    print sdict[i].unique
+    goodM[i,nodes[i]] = 1
+  print " "
+  for j in range(0,big):
+    print bdict[j].unique
+  print "good M:"
+  print goodM
 
+  return (B,S,nodes)
+  
 while 1:
   (B,S,nodes) = gen_iso ()
   #print "node map:"
