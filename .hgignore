@@ -3,3 +3,6 @@ syntax: glob
 *~
 *.swp
 *.swo
+molecule_data_full/*
+molecule_data_small/*
+molecule_data/*

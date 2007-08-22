@@ -73,7 +73,6 @@ class Graph:
   def add_edge (self, node1, node2):
     if self.has_edge(node1, node2):
       return
-    print "adding %d<->%d edge" % (node1.unique, node2.unique)
     index1 = self.index_dict[node1.unique]
     index2 = self.index_dict[node2.unique]
     #directed graph?

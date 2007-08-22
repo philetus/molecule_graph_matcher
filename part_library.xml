@@ -3,51 +3,61 @@
         part_type="strut"
         children="2"
         rootness="0.0"
+        label = ""
     />
     <part address="3, 18"
         part_type="strut"
         children="2"
         rootness="0.0"
+        label = ""
     />
     <part address="3, 19"
         part_type="strut"
         children="2"
         rootness="0.0"
+        label = ""
     />
     <part address="3, 20"
         part_type="strut"
         children="2"
         rootness="0.0"
+        label = ""
     />
     <part address="42, 2"
         part_type="one hub"
         children="1"
         rootness="3.0"
+        label = "c"
     />
     <part address="42, 3"
         part_type="one hub"
         children="1"
         rootness="3.0"
+        label = "c"
     />
     <part address="42, 4"
         part_type="one hub"
         children="1"
         rootness="3.0"
+        label = "o"
     />
     <part address="42, 5"
         part_type="one hub"
         children="1"
         rootness="3.0"
+        label = "o"
     />
     <part
         address="42, 6"
         part_type="one hub"
         children="1"
         rootness="3.0"
+        label = "h"
     />
     <part address="88, 1"
         part_type="four hub"
         children="4"
         rootness="4.0"
+        label = "o"
     />
 </part_library>
