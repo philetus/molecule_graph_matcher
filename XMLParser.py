@@ -18,6 +18,7 @@ class StructureHandler(XH.ContentHandler):
   inside_bond1 = 0
   inside_bond2 = 0
   inside_name = 0
+  passed_name = 0
 
   atom_count = 0
   element_count = 0
@@ -59,9 +60,12 @@ class StructureHandler(XH.ContentHandler):
     elif self.inside_bond2:
       self.end_count += 1
       graph.add_edge(self.bonds[self.end_count], self.find_atom(content))
-    elif self.inside_name:
+    elif self.inside_name and self.passed_name:
       global name
       name = content
+      self.passed_name = 0
+    elif content == "IUPAC Name":
+      self.passed_name = 1
 
   def find_atom(self, content):
     return self.atoms[int(content)]

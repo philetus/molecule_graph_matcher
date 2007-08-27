@@ -36,7 +36,7 @@ class Graph_Node:
 
   def remove_edge (self, neighbor):
     filter((lambda x : x is not neighbor), self.neighbors)
-    self.degree += 1
+    self.degree -= 1
 
   def set_neighbors(self, neighbors):
     self.neighbors = neighbors

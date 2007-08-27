@@ -8,12 +8,14 @@ class Graph:
   adj_matrix = None
   index_dict = None  # nodeid |-> ix
   node_dict = None   # nodeid |-> node
+  label_count = None
 
   def __init__ (self, nodelist=[]):
     dim = len(nodelist)
     self.adj_matrix = zeros((dim,dim), Int8)
     self.index_dict = {}
     self.node_dict = {}
+    self.label_count = {}
     i = 0
     for eli in nodelist:
       self.index_dict[eli.unique] = i
@@ -43,6 +45,10 @@ class Graph:
       self.adj_matrix[self.index_dict[el.unique], index] = 1
 
     node.add_to_graph(self)
+    if self.label_count.has_key(node.label):
+      self.label_count[node.label] += 1
+    else:
+      self.label_count[node.label] = 1
     
 
   def remove_node (self, node):
@@ -61,6 +67,7 @@ class Graph:
     self.adj_matrix = concatenate((fstpart,sndpart),1)
 
     node.remove_from_graph(self)
+    self.label_count[node.label] -= 1
 
     del self.index_dict[node.unique]
     del self.node_dict[node.unique]

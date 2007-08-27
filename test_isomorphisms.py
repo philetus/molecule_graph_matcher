@@ -10,7 +10,7 @@ small_lo = 3
 
 def gen_iso ():
   big = R.randint(big_lo,big_hi)
-  small = R.randint(small_lo,big)
+  small = R.randint(small_lo ,big)
   nodes = []
   i = 0
   while len(nodes) < small:
@@ -41,20 +41,31 @@ def gen_iso ():
       if B.has_edge(bdict[nodes[i]],bdict[nodes[j]]):
         if R.randint(0,1):
           S.add_edge(sdict[i],sdict[j])
+  n = R.randint(0,small)
+  for (u,i) in S.index_dict.iteritems():
+    if i == n:
+      S.remove_node(S.node_dict[u])
+      break
+
+#  print "B is"
+#  print B.adj_matrix
+#  print "S is"
+#  print S.adj_matrix
+#  print ""
 
 
   return (B,S,nodes)
 
 def foo ():
-  for x in range(0,1000):
+  for x in range(0,10000):
     (B,S,nodes) = gen_iso ()
 #    print "genning iso"
     gm = GM.Graph_Matcher(B,S)
 #    print "testing"
     if gm.has_isomorphism():
-      print "."
+      print ".",
     else:
-      print "!"
+      print "!",
 
 import profile
 profile.run("foo()")

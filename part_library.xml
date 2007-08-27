@@ -27,25 +27,25 @@
         part_type="one hub"
         children="1"
         rootness="3.0"
-        label = "c"
+        label = "h"
     />
     <part address="42, 3"
         part_type="one hub"
         children="1"
         rootness="3.0"
-        label = "c"
+        label = "h"
     />
     <part address="42, 4"
         part_type="one hub"
         children="1"
         rootness="3.0"
-        label = "o"
+        label = "h"
     />
     <part address="42, 5"
         part_type="one hub"
         children="1"
         rootness="3.0"
-        label = "o"
+        label = "h"
     />
     <part
         address="42, 6"

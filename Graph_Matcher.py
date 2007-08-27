@@ -56,9 +56,6 @@ class Graph_Matcher:
           M0[i,j] = 1
         j += 1
       i += 1
-    print "M0 is "
-    print M0
-#    print "done"
     perm = self.first_permutation(M0)
 #    print "enumming perms"
     while self.next_permutation(M0, perm, 0, A.shape[0]):
