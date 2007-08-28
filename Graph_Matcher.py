@@ -1,3 +1,5 @@
+#XXX has_iso, is_iso, find_isos FULL OF CODE DUP
+
 from Graph_Node import Graph_Node
 from Graph import Graph
 from Isomorphism import Isomorphism
@@ -35,7 +37,7 @@ class Graph_Matcher:
     perm = self.first_permutation(M0)
     while self.next_permutation(M0, perm, 0, A.shape[0]):
       M = self.mat_from_perm(perm)
-      if self.is_isomorphism(A,B,M):
+      if self.is_isomorphic(A,B,M):
         self.isomorphisms.append(M) #copy matrix to list
 
 
@@ -46,7 +48,6 @@ class Graph_Matcher:
     M0 = zeros((A.shape[0],B.shape[0]))
     i = 0
     keyf = lambda x : x[1]
-#    print "making M0"
     for (uniquei,ixi) in sorted([x for x in self.small.index_dict.iteritems()], key = keyf):
       j = 0
       for (uniquej,ixj) in sorted([x for x in self.large.index_dict.iteritems()], key = keyf):
@@ -57,14 +58,38 @@ class Graph_Matcher:
         j += 1
       i += 1
     perm = self.first_permutation(M0)
-#    print "enumming perms"
     while self.next_permutation(M0, perm, 0, A.shape[0]):
-#      print "  finding perm"
       M = self.mat_from_perm (M0,perm)
-#      print "  perm found"
-      if self.is_isomorphism(A,B,M):
+      if self.is_isomorphic(A,B,M):
         return 1
     return 0
+
+
+  def is_isomorphism (self):
+    #initialize some things
+    A = self.small.adj_matrix
+    B = self.large.adj_matrix
+    if A.shape[0] !=  B.shape[0]:
+      return 0
+    M0 = zeros((A.shape[0],B.shape[0]))
+    i = 0
+    keyf = lambda x : x[1]
+    for (uniquei,ixi) in sorted([x for x in self.small.index_dict.iteritems()], key = keyf):
+      j = 0
+      for (uniquej,ixj) in sorted([x for x in self.large.index_dict.iteritems()], key = keyf):
+        nodei = self.small.node_dict[uniquei]
+        nodej = self.large.node_dict[uniquej]
+        if nodei.label == nodej.label and nodei.degree == nodej.degree:
+          M0[i,j] = 1
+        j += 1
+      i += 1
+    perm = self.first_permutation(M0)
+    while self.next_permutation(M0, perm, 0, A.shape[0]):
+      M = self.mat_from_perm (M0,perm)
+      if self.is_isomorphic(A,B,M):
+        return 1
+    return 0
+
 
 
   def mat_from_perm(self, M0, perm):
@@ -118,7 +143,7 @@ class Graph_Matcher:
     return 1
 
 
-  def is_isomorphism (self,A,B,M):
+  def is_isomorphic (self,A,B,M):
     C = matrixmultiply(M,transpose(matrixmultiply(M,B)))
     for i in range(0,A.shape[0]):
       for j in range(0,A.shape[1]):

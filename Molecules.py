@@ -30,7 +30,11 @@ class Molecules:
     print "Possible molecules (%d):" % len(self.isomorphism_list)
     self.isomorphism_list.sort(key=molecule_key)
     for el in self.isomorphism_list:
-      print el[0]
+      print "%s,"% el[0],
+    gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
+    print ""
+    if gm.is_isomorphism():
+      print "You have %s." % self.isomorphism_list[0][0]
     print "\n"
 
     self.assembly_graph.start()
@@ -116,7 +120,11 @@ class Molecules:
     print "Possible molecules (%d):" % len(self.isomorphism_list)
     self.isomorphism_list.sort(key=molecule_key)
     for el in self.isomorphism_list:
-      print el[0]
+      print "%s," % el[0],
+    gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
+    print ""
+    if gm.is_isomorphism():
+      print "You have %s." % self.isomorphism_list[0][0]
 #      for (u,n) in el[1].node_dict.iteritems():
 #        ix = el[1].index_dict[u]
 #        print "%d : %s" % (ix, n.label)
@@ -140,47 +148,44 @@ if __name__ == "__main__":
 
     app = Molecules( assembly_queue, molecule_list )
 
-    assembly_queue.put({"type": "create",
-                        "hub": (88,1)})
-
-    assembly_queue.put({"type": "create",
-                        "hub": (42,3)})
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 42, 3 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    0 })
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 88, 1 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    1 })
-
-    assembly_queue.put({ "type":    "disconnect",
-                         "hub":     ( 42, 3 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    0 })
-
-    assembly_queue.put({"type": "destroy",
-                        "hub": (42,3)})
-
 #    assembly_queue.put({"type": "create",
-#                        "hub": (42,6)})
+#                        "hub": (88,1)})
+#
+#    assembly_queue.put({"type": "create",
+#                        "hub": (42,3)})
+#
+#    assembly_queue.put({"type": "create",
+#                        "hub": (42,4)})
 #
 #    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 42, 6 ),
+#                         "hub":     ( 42, 3 ),
 #                         "socket":  0,
 #                         "strut":   ( 3, 17 ),
 #                         "ball":    0 })
-
-    assembly_queue.put({"type": "create",
-                        "hub": (42,5)})
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 42, 5 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    0 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 88, 1 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 17 ),
+#                         "ball":    1 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 42, 4 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 18 ),
+#                         "ball":    0 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 88, 1 ),
+#                         "socket":  1,
+#                         "strut":   ( 3, 18 ),
+#                         "ball":    1 })
+#
+#    assembly_queue.put({ "type":    "disconnect",
+#                         "hub":     ( 42, 3 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 17 ),
+#                         "ball":    0 })
+#
+#    assembly_queue.put({"type": "destroy",
+#                        "hub": (42,3)})
