@@ -5,4 +5,5 @@ syntax: glob
 *.swo
 molecule_data_full/*
 molecule_data_small/*
-molecule_data/*
+molecule_data_med/*
+molecule_data_filtered/*
