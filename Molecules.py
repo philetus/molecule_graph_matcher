@@ -13,11 +13,10 @@ from pyposey.assembly_graph.Strut import Strut
 import XMLParser as XP
 import os
 
-def molecule_key (m):
-  return m[1].adj_matrix.shape[0]
+import Tkinter
 
 class Molecules:
-  def __init__ (self, event_queue, isomorphism_list ):
+  def __init__ (self, event_queue, isomorphism_list, set_gui_list):
     self.isomorphism_list = isomorphism_list
     self.original_isomorphism_list = isomorphism_list[:]
     self.part_library = Part_Library( hub_class=Hub,
@@ -26,9 +25,13 @@ class Molecules:
                                               part_library=self.part_library )
     self.iso_graph = Graph()
     self.node_dict = {}
+    self.socket_dict = {}
 
-    print "Possible molecules (%d):" % len(self.isomorphism_list)
-    self.isomorphism_list.sort(key=molecule_key)
+    self.set_gui_list = set_gui_list
+
+    print "Initial possible molecules (%d):" % len(self.isomorphism_list)
+    self.isomorphism_list.sort(key=self.molecule_key)
+    self.set_gui_list(self.isomorphism_list)
     for el in self.isomorphism_list:
       print "%s,"% el[0],
     gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
@@ -40,6 +43,9 @@ class Molecules:
     self.assembly_graph.start()
 
     self.assembly_graph.observers.append( self.update_isomorphisms )
+
+  def molecule_key (self, m):
+    return m[1].adj_matrix.shape[0]
 
   def filter_isomorphisms( self, large ):
     #self.count += 1
@@ -74,6 +80,7 @@ class Molecules:
     elif event["type"] == "connect":
       gn1 = self.node_dict[event["hub"]]
       strut = self.assembly_graph.parts[event["strut"]]
+      strut_dict[(event["hub"],event["socket"])] = strut
       hubs = strut.get_connected()
       flag = 0
       for hub in hubs:
@@ -89,7 +96,7 @@ class Molecules:
 
     elif event["type"] == "disconnect":
       gn1 = self.node_dict[event["hub"]]
-      strut = self.assembly_graph.parts[event["strut"]]
+      strut = strut_dict[(event["hub"],event["socket"])] = strut
       hubs = strut.get_connected()
       flag = 0
       for hub in hubs:
@@ -118,7 +125,8 @@ class Molecules:
 #    print "\n"
 
     print "Possible molecules (%d):" % len(self.isomorphism_list)
-    self.isomorphism_list.sort(key=molecule_key)
+    self.isomorphism_list.sort(key=self.molecule_key)
+    self.set_gui_list(self.isomorphism_list)
     for el in self.isomorphism_list:
       print "%s," % el[0],
     gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
@@ -133,59 +141,58 @@ class Molecules:
     print "\n"
 
 def import_molecule (name):
-  print "Importing %s..." % name,
+  #print "Importing %s..." % name,
   m = XP.parse_file("./molecule_data/" + name)
-  print "done."
+  #print "done."
   return m
 
-if __name__ == "__main__":
+#XXX __init__ magic?
+def start(set_listbox):
     assembly_queue = Queue()
 
     data_files = os.listdir ("./molecule_data")
     
-    molecule_list = map (import_molecule, data_files)
+    molecule_list = map (import_molecule, data_files, )
     print ""
 
-    app = Molecules( assembly_queue, molecule_list )
+    app = Molecules( assembly_queue, molecule_list, set_listbox )
 
-#    assembly_queue.put({"type": "create",
-#                        "hub": (88,1)})
-#
-#    assembly_queue.put({"type": "create",
-#                        "hub": (42,3)})
-#
-#    assembly_queue.put({"type": "create",
-#                        "hub": (42,4)})
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 42, 3 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 17 ),
-#                         "ball":    0 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 88, 1 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 17 ),
-#                         "ball":    1 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 42, 4 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 18 ),
-#                         "ball":    0 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 88, 1 ),
-#                         "socket":  1,
-#                         "strut":   ( 3, 18 ),
-#                         "ball":    1 })
-#
-#    assembly_queue.put({ "type":    "disconnect",
-#                         "hub":     ( 42, 3 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 17 ),
-#                         "ball":    0 })
-#
-#    assembly_queue.put({"type": "destroy",
-#                        "hub": (42,3)})
+    assembly_queue.put({"type": "create",
+                        "hub": (88,1)})
+
+    assembly_queue.put({"type": "create",
+                        "hub": (42,3)})
+
+    assembly_queue.put({"type": "create",
+                        "hub": (42,4)})
+
+    assembly_queue.put({ "type":    "connect",
+                         "hub":     ( 42, 3 ),
+                         "socket":  0,
+                         "strut":   ( 3, 17 ),
+                         "ball":    0 })
+
+    assembly_queue.put({ "type":    "connect",
+                         "hub":     ( 88, 1 ),
+                         "socket":  0,
+                         "strut":   ( 3, 17 ),
+                         "ball":    1 })
+
+    assembly_queue.put({ "type":    "connect",
+                         "hub":     ( 42, 4 ),
+                         "socket":  0,
+                         "strut":   ( 3, 18 ),
+                         "ball":    0 })
+
+    assembly_queue.put({ "type":    "connect",
+                         "hub":     ( 88, 1 ),
+                         "socket":  1,
+                         "strut":   ( 3, 18 ),
+                         "ball":    1 })
+
+    assembly_queue.put({ "type":    "disconnect",
+                         "hub":     ( 42, 3 ),
+                         "socket":  0})
+
+    assembly_queue.put({"type": "destroy",
+                        "hub": (42,3)})
