@@ -80,7 +80,7 @@ class Molecules:
     elif event["type"] == "connect":
       gn1 = self.node_dict[event["hub"]]
       strut = self.assembly_graph.parts[event["strut"]]
-      strut_dict[(event["hub"],event["socket"])] = strut
+      self.socket_dict[(event["hub"],event["socket"])] = strut
       hubs = strut.get_connected()
       flag = 0
       for hub in hubs:
@@ -96,7 +96,7 @@ class Molecules:
 
     elif event["type"] == "disconnect":
       gn1 = self.node_dict[event["hub"]]
-      strut = strut_dict[(event["hub"],event["socket"])] = strut
+      strut = self.socket_dict[(event["hub"],event["socket"])]
       hubs = strut.get_connected()
       flag = 0
       for hub in hubs:

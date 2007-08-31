@@ -13,9 +13,11 @@ def list_sel_command():
   print name
   try:
     pymol.cmd.load("pdbs/%s.pdb" % name)
+    pymol.cmd.center(name)
   except pymol.CmdException:
     print "Unable to load file pdbs/%s.pdb" % name
     pymol.cmd.load("pdbs/nitroglycerin.pdb")
+    pymol.cmd.center("nitroglycerin")
   pymol.cmd.set("sphere_scale", value=0.25)
   pymol.cmd.set("stick_radius", value=0.1)
   pymol.cmd.show("sticks")
