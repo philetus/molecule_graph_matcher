@@ -1,6 +1,10 @@
 from Queue import Queue
 
 from pyposey.assembly_graph.Assembly_Graph import Assembly_Graph
+
+from pyposey.hardware_demon.Sensor_Demon import Sensor_Demon
+from pyposey.hardware_demon.Assembly_Demon import Assembly_Demon
+
 from pyposey.assembly_graph.Part_Library import Part_Library
 
 from Graph import Graph
@@ -61,8 +65,8 @@ class Molecules:
     return iso
 
   def update_isomorphisms( self, event ):
-    raw_input (" ")
-    print "---------------------------------------"
+    #raw_input (" ")
+    #print "---------------------------------------"
 
     if event["type"] == "create":
       gn = Graph_Node(self.part_library[event["hub"]].label)
@@ -148,51 +152,57 @@ def import_molecule (name):
 
 #XXX __init__ magic?
 def start(set_listbox):
-    assembly_queue = Queue()
-
     data_files = os.listdir ("./molecule_data")
     
     molecule_list = map (import_molecule, data_files, )
     print ""
 
+    sensor_queue = Queue()
+    assembly_queue = Queue()
+
+    sensor_demon = Sensor_Demon( sensor_queue, serial_port="/dev/ttyUSB0" )
+    assembly_demon = Assembly_Demon( sensor_queue, assembly_queue )
+    sensor_demon.start()
+    assembly_demon.start()
+
     app = Molecules( assembly_queue, molecule_list, set_listbox )
 
-    assembly_queue.put({"type": "create",
-                        "hub": (88,1)})
-
-    assembly_queue.put({"type": "create",
-                        "hub": (42,3)})
-
-    assembly_queue.put({"type": "create",
-                        "hub": (42,4)})
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 42, 3 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    0 })
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 88, 1 ),
-                         "socket":  0,
-                         "strut":   ( 3, 17 ),
-                         "ball":    1 })
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 42, 4 ),
-                         "socket":  0,
-                         "strut":   ( 3, 18 ),
-                         "ball":    0 })
-
-    assembly_queue.put({ "type":    "connect",
-                         "hub":     ( 88, 1 ),
-                         "socket":  1,
-                         "strut":   ( 3, 18 ),
-                         "ball":    1 })
-
-    assembly_queue.put({ "type":    "disconnect",
-                         "hub":     ( 42, 3 ),
-                         "socket":  0})
-
-    assembly_queue.put({"type": "destroy",
-                        "hub": (42,3)})
+#    assembly_queue.put({"type": "create",
+#                        "hub": (88,1)})
+#
+#    assembly_queue.put({"type": "create",
+#                        "hub": (42,3)})
+#
+#    assembly_queue.put({"type": "create",
+#                        "hub": (42,4)})
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 42, 3 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 17 ),
+#                         "ball":    0 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 88, 1 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 17 ),
+#                         "ball":    1 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 42, 4 ),
+#                         "socket":  0,
+#                         "strut":   ( 3, 18 ),
+#                         "ball":    0 })
+#
+#    assembly_queue.put({ "type":    "connect",
+#                         "hub":     ( 88, 1 ),
+#                         "socket":  1,
+#                         "strut":   ( 3, 18 ),
+#                         "ball":    1 })
+#
+#    assembly_queue.put({ "type":    "disconnect",
+#                         "hub":     ( 42, 3 ),
+#                         "socket":  0})
+#
+#    assembly_queue.put({"type": "destroy",
+#                        "hub": (42,3)})
