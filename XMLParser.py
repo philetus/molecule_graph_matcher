@@ -7,7 +7,6 @@ import Graph as G
 import Graph_Node as GN
 
 graph = None
-name = None
 
 class StructureHandler(XH.ContentHandler):
 
@@ -17,9 +16,7 @@ class StructureHandler(XH.ContentHandler):
   inside_atom = 0
   inside_bond1 = 0
   inside_bond2 = 0
-  inside_name = 0
-  passed_name = 0
-
+  
   atom_count = 0
   element_count = 0
   beginning_count = 0
@@ -45,8 +42,6 @@ class StructureHandler(XH.ContentHandler):
       self.inside_bond1 = 0
     elif name == "PC-Bonds_aid2_E":
       self.inside_bond2= 0
-    elif name == "PC-InfoData_value_sval":
-      self.inside_name = 0
 
   def characters(self,content):
     if self.inside_atom:
@@ -60,12 +55,6 @@ class StructureHandler(XH.ContentHandler):
     elif self.inside_bond2:
       self.end_count += 1
       graph.add_edge(self.bonds[self.end_count], self.find_atom(content))
-    elif self.inside_name and self.passed_name:
-      global name
-      name = content
-      self.passed_name = 0
-    elif content == "IUPAC Name":
-      self.passed_name = 1
 
   def find_atom(self, content):
     return self.atoms[int(content)]
@@ -77,4 +66,4 @@ def parse_file(file):
   structure_handler = StructureHandler()
   XS.parse(file, structure_handler)
 
-  return (name,graph)
+  return graph

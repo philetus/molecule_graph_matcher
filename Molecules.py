@@ -20,7 +20,7 @@ import os
 import Tkinter
 
 class Molecules:
-  def __init__ (self, event_queue, isomorphism_list, set_gui_list):
+  def __init__ (self, event_queue, isomorphism_list, set_gui_list, list_observer):
     self.isomorphism_list = isomorphism_list
     self.original_isomorphism_list = isomorphism_list[:]
     self.part_library = Part_Library( hub_class=Hub,
@@ -40,34 +40,25 @@ class Molecules:
       print "%s,"% el[0],
     gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
     print ""
-    if gm.is_isomorphism():
-      print "You have %s." % self.isomorphism_list[0][0]
     print "\n"
 
     self.assembly_graph.start()
 
     self.assembly_graph.observers.append( self.update_isomorphisms )
+    self.assembly_graph.observers.append( list_observer )
 
   def molecule_key (self, m):
     return m[1].adj_matrix.shape[0]
 
-  def filter_isomorphisms( self, large ):
-    #self.count += 1
-    #if self.count % 1 == 0:
-    #  print "molecule: %d" % self.count
-    #for (label, count) in self.iso_graph.label_count.iteritems():
-    #  if not large[1].label_count.has_key(label):
-    #    return 0
-    #  if large[1].label_count[label] < self.iso_graph.label_count[label]:
-    #    return 0
+  def map_isomorphisms( self, large ):
     gm = GM.Graph_Matcher(large[1], self.iso_graph)
-    iso = gm.has_isomorphism()
-    return iso
+    iso_map = gm.get_isomorphism()
+    return (large[0], large[1], iso_map)
+
+  def filter_isomorphisms( self, triple ):
+    return triple[2] is not None
 
   def update_isomorphisms( self, event ):
-    #raw_input (" ")
-    #print "---------------------------------------"
-
     if event["type"] == "create":
       gn = Graph_Node(self.part_library[event["hub"]].label)
       print "Received create event: %s(%d)." % (gn.label, gn.unique)
@@ -118,6 +109,7 @@ class Molecules:
     elif event["type"] == "configure":
       pass
 
+    self.isomorphism_list = map(self.map_isomorphisms, self.isomorphism_list)
     self.isomorphism_list = filter(self.filter_isomorphisms, self.isomorphism_list)
 
 #    print "possible molecules: %d\n" % len(self.isomorphism_list)
@@ -135,7 +127,7 @@ class Molecules:
       print "%s," % el[0],
     gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
     print ""
-    if gm.is_isomorphism():
+    if gm.has_isomorphism():
       print "You have %s." % self.isomorphism_list[0][0]
 #      for (u,n) in el[1].node_dict.iteritems():
 #        ix = el[1].index_dict[u]
@@ -145,13 +137,13 @@ class Molecules:
     print "\n"
 
 def import_molecule (name):
-  #print "Importing %s..." % name,
-  m = XP.parse_file("./molecule_data/" + name)
-  #print "done."
-  return m
+  print "Importing %s..." % name,
+  g = XP.parse_file("./molecule_data/" + name)
+  print "done."
+  return (name[0:-4],g,{})
 
 #XXX __init__ magic?
-def start(set_listbox):
+def start(set_listbox, list_observer):
     data_files = os.listdir ("./molecule_data")
     
     molecule_list = map (import_molecule, data_files, )
@@ -165,11 +157,11 @@ def start(set_listbox):
     sensor_demon.start()
     assembly_demon.start()
 
-    app = Molecules( assembly_queue, molecule_list, set_listbox )
+    app = Molecules( assembly_queue, molecule_list, set_listbox, list_observer)
 
 #    assembly_queue.put({"type": "create",
 #                        "hub": (88,1)})
-#
+
 #    assembly_queue.put({"type": "create",
 #                        "hub": (42,3)})
 #
@@ -206,3 +198,5 @@ def start(set_listbox):
 #
 #    assembly_queue.put({"type": "destroy",
 #                        "hub": (42,3)})
+
+    return app

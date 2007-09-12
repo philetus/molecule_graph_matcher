@@ -1,13 +1,9 @@
-#XXX has_iso, is_iso, find_isos FULL OF CODE DUP
-
 from Graph_Node import Graph_Node
 from Graph import Graph
 from Isomorphism import Isomorphism
 from Numeric import *
 
 class Graph_Matcher:
-  isomorphisms = None
-
 
   def __init__ (self, large, small):
     self.large = large
@@ -15,33 +11,26 @@ class Graph_Matcher:
 
 
   #from Ullman, 1976
-  def find_isomorphisms (self):
-    #initialize some things
-    A = self.small.adj_matrix
-    B = self.large.adj_matrix
-    M0 = zeros((A.shape[0],B.shape[0]))
-    i = 0
-    keyf = lambda x : x[1]
-    for (uniquei,ixi) in sorted([x for x in self.small.index_dict.iteritems()], key = keyf):
-      j = 0
-      for (uniquej,ixj) in sorted([x for x in self.large.index_dict.iteritems()], key = keyf):
-        nodei = self.small.node_dict[uniquei]
-        nodej = self.large.node_dict[uniquej]
-        if nodei.label == nodej.label and nodei.degree <= nodej.degree:
-          M0[i,j] = 1
-        j += 1
-      i += 1
-
-    #enumerate allowable permutations
+  def get_isomorphisms (self):
+    (A, B, M0, perm) = self.initial_vals ()
     isomorphisms = []
-    perm = self.first_permutation(M0)
     while self.next_permutation(M0, perm, 0, A.shape[0]):
       M = self.mat_from_perm(perm)
       if self.is_isomorphic(A,B,M):
-        self.isomorphisms.append(M) #copy matrix to list
+        self.isomorphisms.append(self.mat_to_iso_map(M)) #copy iso to list
+    return isomorphisms
 
 
-  def has_isomorphism (self):
+  def get_isomorphism_matrix (self):
+    (A, B, M0, perm) = self.initial_vals ()
+    while self.next_permutation(M0, perm, 0, A.shape[0]):
+      M = self.mat_from_perm (M0,perm)
+      if self.is_isomorphic(A,B,M):
+        return M
+    return None
+
+
+  def initial_vals(self):
     #initialize some things
     A = self.small.adj_matrix
     B = self.large.adj_matrix
@@ -58,38 +47,30 @@ class Graph_Matcher:
         j += 1
       i += 1
     perm = self.first_permutation(M0)
-    while self.next_permutation(M0, perm, 0, A.shape[0]):
-      M = self.mat_from_perm (M0,perm)
-      if self.is_isomorphic(A,B,M):
-        return 1
-    return 0
+    
+    return (A, B, M0, perm)
 
 
-  def is_isomorphism (self):
-    #initialize some things
-    A = self.small.adj_matrix
-    B = self.large.adj_matrix
-    if A.shape[0] !=  B.shape[0]:
-      return 0
-    M0 = zeros((A.shape[0],B.shape[0]))
-    i = 0
-    keyf = lambda x : x[1]
-    for (uniquei,ixi) in sorted([x for x in self.small.index_dict.iteritems()], key = keyf):
-      j = 0
-      for (uniquej,ixj) in sorted([x for x in self.large.index_dict.iteritems()], key = keyf):
-        nodei = self.small.node_dict[uniquei]
-        nodej = self.large.node_dict[uniquej]
-        if nodei.label == nodej.label and nodei.degree == nodej.degree:
-          M0[i,j] = 1
-        j += 1
-      i += 1
-    perm = self.first_permutation(M0)
-    while self.next_permutation(M0, perm, 0, A.shape[0]):
-      M = self.mat_from_perm (M0,perm)
-      if self.is_isomorphic(A,B,M):
-        return 1
-    return 0
+  def get_isomorphism (self):
+    M = self.get_isomorphism_matrix ()
+    if M is None:
+      return None
+    else:
+      return self.mat_to_iso_map(M)
 
+
+  def mat_to_iso_map(self, M):
+    iso_map = {}
+    for (uniquei,indexi) in self.small.index_dict.iteritems():
+      for (uniquej,indexj) in self.large.index_dict.iteritems():
+        if M[indexi, indexj] == 1:
+          iso_map[uniquei] = uniquej
+          break
+    return iso_map
+
+
+  def has_isomorphism (self):
+    return self.get_isomorphism_matrix() is not None
 
 
   def mat_from_perm(self, M0, perm):

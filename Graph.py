@@ -122,3 +122,10 @@ class Graph:
 
   def has_edge (self, node1, node2):
     return self.adj_matrix[self.index_dict[node1.unique],self.index_dict[node2.unique]]
+
+  def __str__ (self):
+    s = ""
+    for (unique,ix) in sorted([x for x in self.index_dict.iteritems()], key = lambda x : x[1]):
+       s += "%d:\"%s\"\n" % (ix, self.node_dict[unique].label)
+    s += str(self.adj_matrix)
+    return s
