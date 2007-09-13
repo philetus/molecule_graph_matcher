@@ -1,3 +1,5 @@
+# parse a pubchem XML file to a graph
+
 import xml.sax as XS
 import xml.sax.handler as XH
 
