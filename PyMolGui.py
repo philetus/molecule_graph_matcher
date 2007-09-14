@@ -53,17 +53,17 @@ def list_sel_command(event=None):
   #(ignore, pc_graph) = (find(app.isomorphism_list, lambda x : x[0] == name))
   #posey_map = None
   (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
-  print (ignore, pc_graph, posey_map)
+  #print (ignore, pc_graph, posey_map)
 #  try:
-  print 1
-  print "pc:"
-  print pc_graph
-  print "pdb:"
-  print pdb_graph
+  #print 1
+  #print "pc:"
+  #print pc_graph
+  #print "pdb:"
+  #print pdb_graph
   pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
-  print 2
+  #print 2
   pc_map = pdb_graph_matcher.get_isomorphism()
-  print 3
+  #print 3
 #  if pc_map is None:
 #    raise Exception
   highlight_atoms(pymol, pc_map, pdb_graph, posey_map)

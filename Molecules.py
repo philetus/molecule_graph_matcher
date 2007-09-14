@@ -166,7 +166,7 @@ class Molecules:
 
     # configure event does nothing
     elif event["type"] == "configure":
-      pass
+      return 
 
     # do the filtering
     self.isomorphism_list = map(self.map_isomorphisms, self.isomorphism_list)
