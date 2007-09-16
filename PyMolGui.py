@@ -40,12 +40,19 @@ def list_sel_command(event=None):
     return
   print name
   try:
+    print "1"
     pymol.cmd.reinitialize ()
+    print "2"
     pymol.cmd.load("pdbs/%s.pdb" % name)
+    print "3"
     pymol.cmd.center(armor(name))
+    print "4"
     pymol.cmd.set("sphere_scale", value=0.25)
+    print "5"
     pymol.cmd.set("stick_radius", value=0.1)
+    print "6"
     pymol.cmd.show("sticks")
+    print "7"
     #pymol.cmd.show("spheres")
   except pymol.CmdException:
     print "Unable to load file pdbs/%s.pdb" % name

@@ -106,18 +106,22 @@ class Molecules:
     #destroy
     elif event["type"] == "destroy":
       # find out what node it is
-      gn = self.node_dict[event["hub"]]
-      print "Received destroy event: %s(%d)" % (gn.label, gn.unique)
-      # remove node from graph
-      self.iso_graph.remove_node(gn)
-      # remove node from dictionary
-      del self.node_dict[event["hub"]]
-      # replace molecule list with original list
-      # This requires some explanation.  Since we filter out unmatching graphs,
-      # our list of matching molecules gets smaller monotonically.  When we
-      # need to make our list larger on destroy or disconnect, we refilter the
-      # whole list.
-      self.isomorphism_list = self.original_isomorphism_list[:]
+      try:
+        gn = self.node_dict[event["hub"]]
+        print "Received destroy event: %s(%d)" % (gn.label, gn.unique)
+        # remove node from graph
+        self.iso_graph.remove_node(gn)
+        # remove node from dictionary
+        del self.node_dict[event["hub"]]
+        # replace molecule list with original list
+        # This requires some explanation. Since we filter out unmatching graphs,
+        # our list of matching molecules gets smaller monotonically.  When we
+        # need to make our list larger on destroy or disconnect, we refilter the
+        # whole list.
+        self.isomorphism_list = self.original_isomorphism_list[:]
+      except KeyError:
+        # We can't find this node; probably a hardware infelicity
+        return
 
     # connect event
     elif event["type"] == "connect":
@@ -125,7 +129,7 @@ class Molecules:
       gn1 = self.node_dict[event["hub"]]
       # find what strut we are connecting to.
       strut = self.assembly_graph.parts[event["strut"]]
-      # record this strut is in aour graph
+      # record this strut is in our graph
       self.socket_dict[(event["hub"],event["socket"])] = strut
       # find the node at the other end of the strut and connect to it
       hubs = strut.get_connected()
