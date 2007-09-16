@@ -82,11 +82,21 @@ class Molecules:
   # Used with map: for each graph in our list, try to
   # match the posey graph to it.
   def map_isomorphisms( self, large ):
-    if self.iso_graph.adj_matrix.shape[0] > large.adj_matrix.shape[0]:
+    if self.iso_graph.adj_matrix.shape[0] == 0:
+      # the graph is empty
+      return (large[0], large[1], {})
+    if self.iso_graph.adj_matrix.shape[0] > large[1].adj_matrix.shape[0]:
       # return if we are larger than the molecule we are testing against
       return (large[0], large[1], None)
     gm = GM.Graph_Matcher(large[1], self.iso_graph)
-    iso_map = gm.get_isomorphism()
+    try: iso_map = gm.get_isomorphism()
+    except IndexError:
+      print "error"
+      print "iso:"
+      print self.iso_graph
+      print "large:"
+      print  large[1]
+      print "%d" (1/0)
     return (large[0], large[1], iso_map)
 
   # Used with filter to get rid of failed matches.
@@ -196,10 +206,11 @@ class Molecules:
       print "%s," % el[0],
     print ""
     #find exact match
-    gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
-    if gm.has_isomorphism():
-      print "You have %s." % self.isomorphism_list[0][0]
-    print "\n"
+    if len(self.isomorphism_list) > 0:
+      gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
+      if gm.has_isomorphism():
+        print "You have %s." % self.isomorphism_list[0][0]
+      print "\n"
 
 # load a pubchem xml file
 def import_molecule (name):
