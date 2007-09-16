@@ -82,6 +82,9 @@ class Molecules:
   # Used with map: for each graph in our list, try to
   # match the posey graph to it.
   def map_isomorphisms( self, large ):
+    if self.iso_graph.adj_matrix.shape[0] > large.adj_matrix.shape[0]:
+      # return if we are larger than the molecule we are testing against
+      return (large[0], large[1], None)
     gm = GM.Graph_Matcher(large[1], self.iso_graph)
     iso_map = gm.get_isomorphism()
     return (large[0], large[1], iso_map)
