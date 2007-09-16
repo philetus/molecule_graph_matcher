@@ -121,51 +121,60 @@ class Molecules:
         self.isomorphism_list = self.original_isomorphism_list[:]
       except KeyError:
         # We can't find this node; probably a hardware infelicity
+        print "WARNING: Unable to understand destroy event."
         return
 
     # connect event
     elif event["type"] == "connect":
-      # find what node we are connecting
-      gn1 = self.node_dict[event["hub"]]
-      # find what strut we are connecting to.
-      strut = self.assembly_graph.parts[event["strut"]]
-      # record this strut is in our graph
-      self.socket_dict[(event["hub"],event["socket"])] = strut
-      # find the node at the other end of the strut and connect to it
-      hubs = strut.get_connected()
-      flag = 0
-      for hub in hubs:
-        if hub.address != event["hub"]:
-          gn2 = self.node_dict[hub.address]
-          print "Received connect event: %s(%d) <--> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
-          self.iso_graph.add_edge(gn1, gn2)
-          flag = 1
-          break
-      if not flag:
-        # no node at the other end of the strut
-        print "Receive effectless connect event:  %s(%d)" % (gn1.label,gn1.unique)
+      try:
+        # find what node we are connecting
+        gn1 = self.node_dict[event["hub"]]
+        # find what strut we are connecting to.
+        strut = self.assembly_graph.parts[event["strut"]]
+        # record this strut is in our graph
+        self.socket_dict[(event["hub"],event["socket"])] = strut
+        # find the node at the other end of the strut and connect to it
+        hubs = strut.get_connected()
+        flag = 0
+        for hub in hubs:
+          if hub.address != event["hub"]:
+            gn2 = self.node_dict[hub.address]
+            print "Received connect event: %s(%d) <--> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
+            self.iso_graph.add_edge(gn1, gn2)
+            flag = 1
+            break
+        if not flag:
+          # no node at the other end of the strut
+          print "Receive effectless connect event:  %s(%d)" % (gn1.label,gn1.unique)
+          return
+      except KeyError:
+        print "WARNING: Unable to understand connect event."
         return
 
     #disconnect event
-    elif event["type"] == "disconnect":
-      # find what node we are disconnecting
-      gn1 = self.node_dict[event["hub"]]
-      # find what strut we are disconnecting from
-      strut = self.socket_dict[(event["hub"],event["socket"])]
-      # find the other end of the strut and disconnect
-      hubs = strut.get_connected()
-      flag = 0
-      for hub in hubs:
-        if hub.address != event["hub"]:
-          gn2 = self.node_dict[hub.address]
-          print "Received disconnect event: %s(%d) <-/-> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
-          self.iso_graph.remove_edge(gn1, gn2)
-          self.isomorphism_list = self.original_isomorphism_list[:]
-          flag = 1
-          break
-      if not flag:
-        # nothing at the other end of the strut
-        print "Receive effectless disconnect event:  %s(%d)" % (gn1.label,gn1.unique)
+    elif  event["type"] == "disconnect":
+      try:
+        # find what node we are disconnecting
+        gn1 = self.node_dict[event["hub"]]
+        # find what strut we are disconnecting from
+        strut = self.socket_dict[(event["hub"],event["socket"])]
+        # find the other end of the strut and disconnect
+        hubs = strut.get_connected()
+        flag = 0
+        for hub in hubs:
+          if hub.address != event["hub"]:
+            gn2 = self.node_dict[hub.address]
+            print "Received disconnect event: %s(%d) <-/-> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
+            self.iso_graph.remove_edge(gn1, gn2)
+            self.isomorphism_list = self.original_isomorphism_list[:]
+            flag = 1
+            break
+        if not flag:
+          # nothing at the other end of the strut
+          print "Receive effectless disconnect event:  %s(%d)" % (gn1.label,gn1.unique)
+          return
+      except KeyError:
+        print "WARNING: Unable to understand connect event."
         return
 
     # configure event does nothing
