@@ -54,10 +54,17 @@
         rootness="3.0"
         label = "h"
     />
+    <part
+        address="17, 4"
+        part_type="three hub"
+        children="3"
+        rootness="3.5"
+        label="o"
+    />
     <part address="88, 1"
         part_type="four hub"
         children="4"
         rootness="4.0"
-        label = "o"
+        label = "c"
     />
 </part_library>

@@ -33,40 +33,31 @@ def armor(s):
 
 
 def list_sel_command(event=None):
-  print "foo"
+  #print "foo"
   try:
     name = listbox.get(listbox.curselection())
   except Tkinter.TclError:
     return
   print name
   try:
-    print "1"
+  #  print "1"
     pymol.cmd.reinitialize ()
-    print "2"
+  #  print "2"
     pymol.cmd.load("pdbs/%s.pdb" % name)
-    print "3"
+  #  print "3"
     pymol.cmd.center(armor(name))
-    print "4"
+  #  print "4"
     pymol.cmd.set("sphere_scale", value=0.25)
-    print "5"
+  #  print "5"
     pymol.cmd.set("stick_radius", value=0.1)
-    print "6"
+  #  print "6"
     pymol.cmd.show("sticks")
-    print "7"
-    #pymol.cmd.show("spheres")
+  #  print "7"
   except pymol.CmdException:
     print "Unable to load file pdbs/%s.pdb" % name
   pdb_graph = PDBParser.parse_file("pdbs/%s.pdb" % name)
-  #(ignore, pc_graph) = (find(app.isomorphism_list, lambda x : x[0] == name))
-  #posey_map = None
   (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
-  #print (ignore, pc_graph, posey_map)
 #  try:
-  #print 1
-  #print "pc:"
-  #print pc_graph
-  #print "pdb:"
-  #print pdb_graph
   pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
   #print 2
   pc_map = pdb_graph_matcher.get_isomorphism()

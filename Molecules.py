@@ -7,7 +7,7 @@
 
 from Queue import Queue
 
-from pyposey.assembly_graph.Assembly_Graph import Assembly_Graph
+import threading
 
 from pyposey.hardware_demon.Sensor_Demon import Sensor_Demon
 from pyposey.hardware_demon.Assembly_Demon import Assembly_Demon
@@ -45,15 +45,12 @@ class Molecules:
     self.part_library = Part_Library( hub_class=Hub,
                                      strut_class=Strut )
 
-    # assembly graph
-    self.assembly_graph = Assembly_Graph( event_queue=event_queue,
-                                              part_library=self.part_library )
-
     # posey graph
     self.iso_graph = Graph()
     # information on currently connected pieces to help update the graph
     self.node_dict = {}
     self.socket_dict = {}
+    self.strut_dict = {}
 
     #setting gui hook
     self.set_gui_list = set_gui_list
@@ -67,14 +64,11 @@ class Molecules:
     print ""
     print "\n"
 
-    # start processing assembly events
-    self.assembly_graph.start()
-
-    # update molecule graph list on posey event
-    self.assembly_graph.observers.append( self.update_isomorphisms )
-    # update displayed molecule on posey event
-    self.assembly_graph.observers.append( list_observer )
-
+    #start thread to process assembly events
+    t = threading.Thread(target=self.event_wait,args=(event_queue,))
+    t.setDaemon(1)
+    t.start()
+   
   # We sort molecules by size
   def molecule_key (self, m):
     return m[1].adj_matrix.shape[0]
@@ -89,19 +83,20 @@ class Molecules:
       # return if we are larger than the molecule we are testing against
       return (large[0], large[1], None)
     gm = GM.Graph_Matcher(large[1], self.iso_graph)
-    try: iso_map = gm.get_isomorphism()
-    except IndexError:
-      print "error"
-      print "iso:"
-      print self.iso_graph
-      print "large:"
-      print  large[1]
-      print "%d" (1/0)
+    iso_map = gm.get_isomorphism()
     return (large[0], large[1], iso_map)
+
 
   # Used with filter to get rid of failed matches.
   def filter_isomorphisms( self, triple ):
     return triple[2] is not None
+
+
+  # wait for events, update the iso graph
+  def event_wait (self, event_queue):
+    while 1:
+      self.update_isomorphisms(event_queue.get())
+
 
   # process assembly events; update graph; update list of molecules
   def update_isomorphisms( self, event ):
@@ -135,6 +130,7 @@ class Molecules:
       except KeyError:
         # We can't find this node; probably a hardware infelicity
         print "WARNING: Unable to understand destroy event."
+        print self.iso_graph
         return
 
     # connect event
@@ -143,25 +139,35 @@ class Molecules:
         # find what node we are connecting
         gn1 = self.node_dict[event["hub"]]
         # find what strut we are connecting to.
-        strut = self.assembly_graph.parts[event["strut"]]
+        strut = self.part_library[event["strut"]]
         # record this strut is in our graph
         self.socket_dict[(event["hub"],event["socket"])] = strut
         # find the node at the other end of the strut and connect to it
-        hubs = strut.get_connected()
+        hub_addresses = None
+        if strut in self.strut_dict:
+          hub_addresses = self.strut_dict[strut]
+        else:
+          hub_addresses = set()
+        print "LALALALA"
+        print hub_addresses
         flag = 0
-        for hub in hubs:
-          if hub.address != event["hub"]:
-            gn2 = self.node_dict[hub.address]
+        for hub_address in hub_addresses:
+          if hub_address != event["hub"]:
+            gn2 = self.node_dict[hub_address]
             print "Received connect event: %s(%d) <--> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
             self.iso_graph.add_edge(gn1, gn2)
             flag = 1
             break
+        hub_addresses.add(event["hub"])
+        self.strut_dict[strut] = hub_addresses
         if not flag:
           # no node at the other end of the strut
           print "Receive effectless connect event:  %s(%d)" % (gn1.label,gn1.unique)
+          print self.iso_graph
           return
       except KeyError:
         print "WARNING: Unable to understand connect event."
+        print self.iso_graph
         return
 
     #disconnect event
@@ -172,27 +178,42 @@ class Molecules:
         # find what strut we are disconnecting from
         strut = self.socket_dict[(event["hub"],event["socket"])]
         # find the other end of the strut and disconnect
-        hubs = strut.get_connected()
+        hub_addresses = None
+        if strut in self.strut_dict:
+          hub_addresses = self.strut_dict[strut]
+        else:
+          hub_addresses = set()
+        print "LALALALA"
+        print hub_addresses
         flag = 0
-        for hub in hubs:
-          if hub.address != event["hub"]:
-            gn2 = self.node_dict[hub.address]
+        for hub_address in hub_addresses:
+          if hub_address != event["hub"]:
+            gn2 = self.node_dict[hub_address]
             print "Received disconnect event: %s(%d) <-/-> %s(%d)" % (gn1.label,gn1.unique,gn2.label,gn2.unique)
             self.iso_graph.remove_edge(gn1, gn2)
             self.isomorphism_list = self.original_isomorphism_list[:]
             flag = 1
             break
+        try:
+          hub_addresses.remove(event["hub"])
+        except KeyError:
+          pass
+        self.strut_dict[strut] = hub_addresses
         if not flag:
           # nothing at the other end of the strut
           print "Receive effectless disconnect event:  %s(%d)" % (gn1.label,gn1.unique)
+          print self.iso_graph
           return
       except KeyError:
         print "WARNING: Unable to understand connect event."
+        print self.iso_graph
         return
 
     # configure event does nothing
     elif event["type"] == "configure":
       return 
+    
+    print self.iso_graph
 
     # do the filtering
     self.isomorphism_list = map(self.map_isomorphisms, self.isomorphism_list)
@@ -206,11 +227,11 @@ class Molecules:
       print "%s," % el[0],
     print ""
     #find exact match
-    if len(self.isomorphism_list) > 0:
-      gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
-      if gm.has_isomorphism():
-        print "You have %s." % self.isomorphism_list[0][0]
-      print "\n"
+#    if len(self.isomorphism_list) > 0:
+#      gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
+#      if gm.has_isomorphism():
+#        print "You have %s." % self.isomorphism_list[0][0]
+#      print "\n"
 
 # load a pubchem xml file
 def import_molecule (name):
