@@ -5,6 +5,7 @@ import Tkinter
 import Molecules as M
 import PDBParser
 import Graph_Matcher as GM
+import webbrowser
 
 pymol = None
 listbox = None
@@ -21,58 +22,77 @@ def find (l,f): #XXX replace with hashtable
 
 
 def highlight_atoms(pymol, pc_map, pdb_graph, posey_map):
+  node_set = set()
   for unique in posey_map.values():
-    print pc_map
-    name = pdb_graph.node_dict[pc_map[unique]].atom_name
-    print "Displaying %s." % name
-    pymol.cmd.show("spheres", name)
+    node_set.add(pc_map[unique])
+  for (unique,node) in pdb_graph.node_dict.iteritems():
+    name = node.atom_name
+    if unique in node_set:
+      print "Displaying %s." % name
+      pymol.cmd.show("spheres", name)
+    else:
+      pymol.cmd.hide("spheres", name)
 
 
 def armor(s):
   return s.replace(" ","_")
 
 
-def list_sel_command(event=None):
-  #print "foo"
+current_name = None
+
+
+def list_sel_command():
+  global listbox
+  global current_name
   try:
     name = listbox.get(listbox.curselection())
   except Tkinter.TclError:
-    return
-  print name
-  try:
-  #  print "1"
     pymol.cmd.reinitialize ()
-  #  print "2"
-    pymol.cmd.load("pdbs/%s.pdb" % name)
-  #  print "3"
-    pymol.cmd.center(armor(name))
-  #  print "4"
-    pymol.cmd.set("sphere_scale", value=0.25)
-  #  print "5"
-    pymol.cmd.set("stick_radius", value=0.1)
-  #  print "6"
-    pymol.cmd.show("sticks")
-  #  print "7"
+    current_name = None
+    return
+  try:
+    print "Current name is %s." % current_name
+    if name != current_name:
+      current_name = name
+      pymol.cmd.reinitialize ()
+      pymol.cmd.load("pdbs/%s.pdb" % name)
+      pymol.cmd.center(armor(name))
+      pymol.cmd.set("sphere_scale", value=0.25)
+      pymol.cmd.set("stick_radius", value=0.1)
+      pymol.cmd.show("sticks")
   except pymol.CmdException:
     print "Unable to load file pdbs/%s.pdb" % name
   pdb_graph = PDBParser.parse_file("pdbs/%s.pdb" % name)
   (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
-#  try:
-  pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
-  #print 2
-  pc_map = pdb_graph_matcher.get_isomorphism()
-  #print 3
-#  if pc_map is None:
-#    raise Exception
-  highlight_atoms(pymol, pc_map, pdb_graph, posey_map)
-#  except Exception :
-#    print "Unable to highlight atoms."
+  try:
+    pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
+    pc_map = pdb_graph_matcher.get_isomorphism()
+    if pc_map is None:
+      raise Exception
+    highlight_atoms(pymol, pc_map, pdb_graph, posey_map)
+  except Exception :
+    print "Unable to highlight atoms."
+
+
+def update_display ():
+  global current_name
+  l = listbox.get(0,Tkinter.END)
+  n = len(l)
+  if n > 0:
+    ix = 0
+    for i in range(0,n):
+      if l[i] == current_name:
+        ix = i
+        break
+    listbox.select_set(ix)
+  print "in u_d, calling list_sel"
+  list_sel_command()
+
 
 def set_gui_list(l):
   i = listbox.curselection()
   item = None
   try:
-    global item
     item = listbox.get(i)
   except Tkinter.TclError:
     pass
@@ -84,15 +104,18 @@ def set_gui_list(l):
   except ValueError:
     pass
 
+def info_command():
+  i = listbox.curselection()
+  try:
+    item = listbox.get(i)
+  except Tkinter.TclError:
+    return
+  webbrowser.open("http://en.wikipedia.org/wiki/%s" % armor(item))
+
 
 def make_list_window():
   molecule_list_window = Tkinter.Tk()
   molecule_list_window.title("Possible Molecules")
-
-  button = Tkinter.Button(molecule_list_window)
-  button.config(text="Display Molecule")
-  button.config(command=list_sel_command)
-  button.pack(fill=Tkinter.X, side=Tkinter.TOP)
 
   global scrollbar
   scrollbar = Tkinter.Scrollbar(orient=Tkinter.VERTICAL)
@@ -101,13 +124,23 @@ def make_list_window():
   global listbox
   listbox = Tkinter.Listbox(molecule_list_window)
   listbox.config(selectmode=Tkinter.SINGLE)
-  listbox.pack(fill=Tkinter.BOTH, side=Tkinter.RIGHT)
+  listbox.pack(fill=Tkinter.X, side=Tkinter.TOP)
 
   listbox.config(yscrollcommand=scrollbar.set)
   scrollbar.config(command=listbox.yview)
 
+  button = Tkinter.Button(molecule_list_window)
+  button.config(text="Display Molecule")
+  button.config(command=list_sel_command)
+  button.pack(fill=Tkinter.X, side=Tkinter.TOP)
+
+  info_button = Tkinter.Button(molecule_list_window)
+  info_button.config(text="Molecule Info")
+  info_button.config(command=info_command)
+  info_button.pack(fill=Tkinter.X, side=Tkinter.TOP)
+
   global app
-  app = M.start(set_gui_list, list_sel_command)
+  app = M.start(set_gui_list, update_display)
   molecule_list_window.mainloop()
 
 

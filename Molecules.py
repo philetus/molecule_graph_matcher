@@ -34,7 +34,7 @@ class Molecules:
   # initial list of molecule graphs and two hooks into the gui, one to set the
   # list of elements displayed when a new posey graph is produced, and one to force
   # update of the currently displayed molecule.
-  def __init__ (self, event_queue, isomorphism_list, set_gui_list, list_observer):
+  def __init__ (self, event_queue, isomorphism_list, set_gui_list, update_display):
     # initialize various fields
     # list of possible molecules
     self.isomorphism_list = isomorphism_list
@@ -54,6 +54,7 @@ class Molecules:
 
     #setting gui hook
     self.set_gui_list = set_gui_list
+    self.update_display = update_display
 
     # print initial moledcules
     print "Initial possible molecules (%d):" % len(self.isomorphism_list)
@@ -148,8 +149,6 @@ class Molecules:
           hub_addresses = self.strut_dict[strut]
         else:
           hub_addresses = set()
-        print "LALALALA"
-        print hub_addresses
         flag = 0
         for hub_address in hub_addresses:
           if hub_address != event["hub"]:
@@ -183,8 +182,6 @@ class Molecules:
           hub_addresses = self.strut_dict[strut]
         else:
           hub_addresses = set()
-        print "LALALALA"
-        print hub_addresses
         flag = 0
         for hub_address in hub_addresses:
           if hub_address != event["hub"]:
@@ -226,12 +223,14 @@ class Molecules:
     for el in self.isomorphism_list:
       print "%s," % el[0],
     print ""
-    #find exact match
+    #find exact match (doesn't work)
 #    if len(self.isomorphism_list) > 0:
 #      gm = GM.Graph_Matcher(self.isomorphism_list[0][1], self.iso_graph)
 #      if gm.has_isomorphism():
 #        print "You have %s." % self.isomorphism_list[0][0]
 #      print "\n"
+
+    self.update_display()
 
 # load a pubchem xml file
 def import_molecule (name):
@@ -242,7 +241,7 @@ def import_molecule (name):
   return (name[0:-4],g,{})
 
 #XXX __init__ magic?
-def start(set_listbox, list_observer):
+def start(set_listbox, update_display):
     # import molecule data
     data_files = os.listdir ("./molecule_data")
     
@@ -258,7 +257,7 @@ def start(set_listbox, list_observer):
     sensor_demon.start()
     assembly_demon.start()
 
-    app = Molecules( assembly_queue, molecule_list, set_listbox, list_observer)
+    app = Molecules( assembly_queue, molecule_list, set_listbox, update_display)
 
 #    assembly_queue.put({"type": "create",
 #                        "hub": (88,1)})
