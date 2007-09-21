@@ -259,44 +259,4 @@ def start(set_listbox, update_display):
 
     app = Molecules( assembly_queue, molecule_list, set_listbox, update_display)
 
-#    assembly_queue.put({"type": "create",
-#                        "hub": (88,1)})
-
-#    assembly_queue.put({"type": "create",
-#                        "hub": (42,3)})
-#
-#    assembly_queue.put({"type": "create",
-#                        "hub": (42,4)})
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 42, 3 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 17 ),
-#                         "ball":    0 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 88, 1 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 17 ),
-#                         "ball":    1 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 42, 4 ),
-#                         "socket":  0,
-#                         "strut":   ( 3, 18 ),
-#                         "ball":    0 })
-#
-#    assembly_queue.put({ "type":    "connect",
-#                         "hub":     ( 88, 1 ),
-#                         "socket":  1,
-#                         "strut":   ( 3, 18 ),
-#                         "ball":    1 })
-#
-#    assembly_queue.put({ "type":    "disconnect",
-#                         "hub":     ( 42, 3 ),
-#                         "socket":  0})
-#
-#    assembly_queue.put({"type": "destroy",
-#                        "hub": (42,3)})
-
     return app
