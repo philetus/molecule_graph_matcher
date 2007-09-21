@@ -68,7 +68,7 @@ def list_sel_command():
       pymol.cmd.load("pdbs/%s.pdb" % name)
       #color mollecule
       for (atom,color) in atom_colors:
-        pymol.cmd.color(color, "/%s////%s*" % (name,atom))
+        pymol.cmd.color(color, "/%s////%s*" % (armor(name),atom))
       # center view on the molecule
       pymol.cmd.center(armor(name))
       #display it in the right way
@@ -133,32 +133,47 @@ def info_command():
     return
   webbrowser.open("http://en.wikipedia.org/wiki/%s" % armor(item))
 
+#command for clear button -- clears the molecule view and deselects
+def clear_command():
+  pymol.cmd.reinitialize ()
+  listbox.select_clear (0, Tkinter.END)
+
 # set up the gui
 def make_list_window():
   molecule_list_window = Tkinter.Tk()
   molecule_list_window.title("Possible Molecules")
 
+  top_frame=Tkinter.Frame(molecule_list_window)
+  top_frame.pack(fill=Tkinter.Y, side=Tkinter.TOP)
+  bot_frame=Tkinter.Frame(molecule_list_window)
+  bot_frame.pack(fill=Tkinter.Y, side=Tkinter.BOTTOM)
+
   global scrollbar
-  scrollbar = Tkinter.Scrollbar(orient=Tkinter.VERTICAL)
+  scrollbar = Tkinter.Scrollbar(top_frame,orient=Tkinter.VERTICAL)
   scrollbar.pack(fill=Tkinter.Y, side=Tkinter.RIGHT)
 
   global listbox
-  listbox = Tkinter.Listbox(molecule_list_window)
+  listbox = Tkinter.Listbox(top_frame)
   listbox.config(selectmode=Tkinter.SINGLE)
   listbox.pack(fill=Tkinter.X, side=Tkinter.TOP)
 
   listbox.config(yscrollcommand=scrollbar.set)
   scrollbar.config(command=listbox.yview)
 
-  button = Tkinter.Button(molecule_list_window)
+  button = Tkinter.Button(bot_frame)
   button.config(text="Display Molecule")
   button.config(command=list_sel_command)
   button.pack(fill=Tkinter.X, side=Tkinter.TOP)
 
-  info_button = Tkinter.Button(molecule_list_window)
+  clear_button = Tkinter.Button(bot_frame)
+  clear_button.config(text="Clear")
+  clear_button.config(command=clear_command)
+  clear_button.pack(fill=Tkinter.X, side=Tkinter.RIGHT)
+
+  info_button = Tkinter.Button(bot_frame)
   info_button.config(text="Molecule Info")
   info_button.config(command=info_command)
-  info_button.pack(fill=Tkinter.X, side=Tkinter.TOP)
+  info_button.pack(fill=Tkinter.X, side=Tkinter.RIGHT)
 
   global app
   app = M.start(set_gui_list, update_display)
