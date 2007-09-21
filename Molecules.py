@@ -131,7 +131,6 @@ class Molecules:
       except KeyError:
         # We can't find this node; probably a hardware infelicity
         print "WARNING: Unable to understand destroy event."
-        print self.iso_graph
         return
 
     # connect event
@@ -162,11 +161,9 @@ class Molecules:
         if not flag:
           # no node at the other end of the strut
           print "Receive effectless connect event:  %s(%d)" % (gn1.label,gn1.unique)
-          print self.iso_graph
           return
       except KeyError:
         print "WARNING: Unable to understand connect event."
-        print self.iso_graph
         return
 
     #disconnect event
@@ -199,18 +196,15 @@ class Molecules:
         if not flag:
           # nothing at the other end of the strut
           print "Receive effectless disconnect event:  %s(%d)" % (gn1.label,gn1.unique)
-          print self.iso_graph
           return
       except KeyError:
         print "WARNING: Unable to understand connect event."
-        print self.iso_graph
         return
 
     # configure event does nothing
     elif event["type"] == "configure":
       return 
     
-    print self.iso_graph
 
     # do the filtering
     self.isomorphism_list = map(self.map_isomorphisms, self.isomorphism_list)
