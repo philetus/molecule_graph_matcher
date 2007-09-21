@@ -7,6 +7,8 @@ import PDBParser
 import Graph_Matcher as GM
 import webbrowser
 
+atom_colors = [("O","green"),("C","blue"),("H","yellow"),("Na","red")]
+
 pymol = None
 listbox = None
 scrollbar = None
@@ -56,6 +58,8 @@ def list_sel_command():
       current_name = name
       pymol.cmd.reinitialize ()
       pymol.cmd.load("pdbs/%s.pdb" % name)
+      for (atom,color) in atom_colors:
+        pymol.cmd.color(color, "/%s////%s*" % (name,atom))
       pymol.cmd.center(armor(name))
       pymol.cmd.set("sphere_scale", value=0.25)
       pymol.cmd.set("stick_radius", value=0.1)
