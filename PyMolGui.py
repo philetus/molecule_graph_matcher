@@ -7,14 +7,15 @@ import PDBParser
 import Graph_Matcher as GM
 import webbrowser
 
+# how atoms should be colored -- currently corresponds to posey pieces
 atom_colors = [("O","green"),("C","blue"),("H","yellow"),("Na","red")]
 
+# globals for accessing needed components
 pymol = None
 listbox = None
 scrollbar = None
 
 app = None
-
 
 def find (l,f): #XXX replace with hashtable
   for x in l:
@@ -22,63 +23,78 @@ def find (l,f): #XXX replace with hashtable
       return x
   return None
 
-
+# make the atoms we've built into spheres, the others into sticks
 def highlight_atoms(pymol, pc_map, pdb_graph, posey_map):
+  # create a set of pdb graph nodes that are in the structure we've built
   node_set = set()
   for unique in posey_map.values():
     node_set.add(pc_map[unique])
+  # check each node in the pdb graph, make it either a stick or a ball
   for (unique,node) in pdb_graph.node_dict.iteritems():
     name = node.atom_name
     if unique in node_set:
-      print "Displaying %s." % name
       pymol.cmd.show("spheres", name)
     else:
       pymol.cmd.hide("spheres", name)
 
-
+# turn file names into PyMol atom names
 def armor(s):
   return s.replace(" ","_")
 
-
+# we store the name of the currently selected atom to tell if it is changed and
+# we need to load the new file
 current_name = None
 
-
+# gets run when a user presses the "display molecule" button, or after updating
+# the currently selected molecule when the user has added a posey piece
 def list_sel_command():
   global listbox
   global current_name
   try:
+    # try to get the currently selected molecule
     name = listbox.get(listbox.curselection())
   except Tkinter.TclError:
+    # nothing is selected.  Blank the screen and return.
     pymol.cmd.reinitialize ()
     current_name = None
     return
   try:
-    print "Current name is %s." % current_name
     if name != current_name:
+      # we are displaying a new molecule
       current_name = name
+      # blank screen and unload old molecule
       pymol.cmd.reinitialize ()
+      #load molecule
       pymol.cmd.load("pdbs/%s.pdb" % name)
+      #color mollecule
       for (atom,color) in atom_colors:
         pymol.cmd.color(color, "/%s////%s*" % (name,atom))
+      # center view on the molecule
       pymol.cmd.center(armor(name))
+      #display it in the right way
       pymol.cmd.set("sphere_scale", value=0.25)
       pymol.cmd.set("stick_radius", value=0.1)
       pymol.cmd.show("sticks")
   except pymol.CmdException:
     print "Unable to load file pdbs/%s.pdb" % name
-  pdb_graph = PDBParser.parse_file("pdbs/%s.pdb" % name)
-  (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
   try:
+    pdb_graph = PDBParser.parse_file("pdbs/%s.pdb" % name)
+    #now try to highlight the molecule
+    # find the PubChem xml molecule corresponding to this PDB file
+  (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
     pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
     pc_map = pdb_graph_matcher.get_isomorphism()
     if pc_map is None:
       raise Exception
+    # if we succeeded in finding a correspondance, highlight atoms
     highlight_atoms(pymol, pc_map, pdb_graph, posey_map)
   except Exception :
     print "Unable to highlight atoms."
 
-
+# on changing the posey model, select correct molecule and display it
 def update_display ():
+  # find the current molecule in the listbox, or, if it doesn't exist,
+  # select the first molecule
   global current_name
   l = listbox.get(0,Tkinter.END)
   n = len(l)
@@ -89,10 +105,10 @@ def update_display ():
         ix = i
         break
     listbox.select_set(ix)
-  print "in u_d, calling list_sel"
+  # display selected molecule
   list_sel_command()
 
-
+# hook to allow matcher to set the listbox list
 def set_gui_list(l):
   i = listbox.curselection()
   item = None
@@ -108,6 +124,7 @@ def set_gui_list(l):
   except ValueError:
     pass
 
+# open wikipedia page on molecule
 def info_command():
   i = listbox.curselection()
   try:
@@ -116,7 +133,7 @@ def info_command():
     return
   webbrowser.open("http://en.wikipedia.org/wiki/%s" % armor(item))
 
-
+# set up the gui
 def make_list_window():
   molecule_list_window = Tkinter.Tk()
   molecule_list_window.title("Possible Molecules")
@@ -147,7 +164,7 @@ def make_list_window():
   app = M.start(set_gui_list, update_display)
   molecule_list_window.mainloop()
 
-
+# spawn a thread to be the gui
 def __init__(pm,i):
   global pymol
   pymol = pm
