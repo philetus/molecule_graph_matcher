@@ -81,7 +81,7 @@ def list_sel_command():
     pdb_graph = PDBParser.parse_file("pdbs/%s.pdb" % name)
     #now try to highlight the molecule
     # find the PubChem xml molecule corresponding to this PDB file
-  (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
+    (ignore, pc_graph, posey_map) = (find(app.isomorphism_list, lambda x : x[0] == name))
     pdb_graph_matcher = GM.Graph_Matcher(pdb_graph, pc_graph)
     pc_map = pdb_graph_matcher.get_isomorphism()
     if pc_map is None:
