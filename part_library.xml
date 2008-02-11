@@ -55,11 +55,25 @@
         label = "h"
     />
     <part
+        address="69, 8"
+        part_type="two hub"
+        children="2"
+        rootness="3.2"
+	label="o"
+    />
+    <part
+        address="69, 9"
+        part_type="two hub"
+        children="2"
+        rootness="3.2"
+	label="o"
+    />
+    <part
         address="17, 4"
         part_type="three hub"
         children="3"
         rootness="3.5"
-        label="o"
+        label="n"
     />
     <part address="88, 1"
         part_type="four hub"

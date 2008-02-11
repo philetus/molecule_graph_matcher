@@ -8,7 +8,7 @@ import Graph_Matcher as GM
 import webbrowser
 
 # how atoms should be colored -- currently corresponds to posey pieces
-atom_colors = [("O","green"),("C","blue"),("H","yellow"),("Na","red")]
+atom_colors = [("O","green"),("C","blue"),("H","yellow"),("N","red")]
 
 # globals for accessing needed components
 pymol = None
